@@ -1,0 +1,237 @@
+Constraints code :
+// Code your testbench here
+// or browse Examples
+module tb();
+  int addr;
+  int addr_concatenation;
+  int addr_unsigned;
+  
+  initial begin
+    repeat(10)begin
+       #5; 
+       addr = $random % 10;
+       addr_concatenation = {$random} % 10;
+      addr_unsigned = $unsigned($random) % 10;
+    end  
+  end
+  
+  initial begin
+    $monitor("addr concat unsigned is %d %d %d ", addr, addr_concatenation, addr_unsigned);
+  end
+endmodule 
+
+//generating unique random numbers
+// Need to generate unique random numbers
+module tb();
+  int addr [9:0];
+  reg index[9:0];
+  bit flag =0;
+  int num, num1;
+  
+  initial begin
+    for (int i =0; i <10; i++) begin
+      addr[i] = i;
+      index[i] = 1;
+    end  
+    for (int i=0; i <10; i++) begin
+      flag =0; // very important initialization
+      while(flag==0) begin
+        num = {$random} %10;
+        if(index[num] == 1) begin
+           flag = 1;
+          index[num] = 0;
+          num1 = addr[num];
+        end  
+      end 
+      $display("num is %d", num1);
+    end  
+    
+  end
+  
+endmodule  
+
+//
+class rVar;
+  rand int var1;
+endclass
+
+class sVar;
+  rand rVar r;
+    function new();
+      r = new();
+    endfunction
+ endclass
+ 
+  module main();
+    sVar s1;
+    initial begin
+      s1 = new();
+      repeat(10) begin
+        if({s1.randomize()}) begin
+          $display("num %d",s1.r.var1);       
+        end  
+      end
+    end  
+  endmodule    
+
+//class rand_mod;
+  rand int var1;
+  rand int var2;
+endclass
+
+class rand_mod2;
+  rand rand_mod r1;
+  rand int var3;
+  function new();
+    r1 = new();
+  endfunction
+endclass  
+
+module main();
+  rand_mod2 r2;
+  initial begin
+    r2 = new();
+    if(r2.randomize()) begin
+      $display("var1 is %d", r2.r1.var1);
+      $display("var2 is %d", r2.r1.var2);
+    end
+    r2.rand_mode(0);
+    if(r2.r1.randomize()) begin
+      $display("var1 is %d", r2.r1.var1);
+      $display("var2 is %d", r2.r1.var2);
+    end
+  end
+endmodule  
+
+// Code your testbench here
+// or browse Examples
+// Set membership with implication operator 
+
+class randNum;
+  rand int num;
+  constraint range {
+    num dist {[0:1]:= 50, [2:7]:= 50};
+    }
+endclass
+
+module main();
+  randNum num1;
+  initial begin
+    num1 = new();
+    repeat(100) begin
+    	num1.randomize();
+    	$display("num is %d", num1.num);
+    end  
+  end
+endmodule  
+//
+class Num;
+  rand int num1, num2;
+  constraint range_num1{
+    num1 dist{[0:1]:=50, [2:7]:=50};
+  }
+  constraint rel_num1_num2{
+    num2 > num1;
+  }
+  constraint range_num2{
+    num2 inside {[0:4]};
+  }
+endclass
+
+module tb();
+  Num n1;
+  initial begin
+    n1 = new();
+    repeat(3)begin
+      n1.randomize();
+      $display("num1 is %d", n1.num1);
+      $display("num2 is %d", n1.num2);
+    end  
+  end
+endmodule  
+ //example with enumerations 
+typedef enum {s, m, l, xl, xxl} size;
+class randenum;
+  rand size size_chart;
+  constraint tshirt{
+    size_chart dist{[s:m] := 50, [l:xxl] :=50};
+  }
+endclass
+
+module tb();
+  randenum e1;
+  initial begin
+    e1 = new();
+    e1.randomize();
+    $display("size is %d", e1.size_chart);
+  end
+endmodule
+
+//example with enumerations 
+typedef enum {s, m, l, xl, xxl} size;
+class randenum;
+ rand int var1;
+ rand int var2;
+  constraint var1_var2_rel{
+    (var1 == 0)->(var2>32);
+  }  
+endclass
+
+module tb();
+  randenum e1;
+  initial begin
+    e1 = new();
+    e1.randomize();
+    $display("size is %d", e1.var1);
+  end
+endmodule  
+// array of object
+// Code your testbench here
+// or browse Examples
+class payload;
+  rand byte payload[];
+  constraint size {
+    payload.size() inside {[14:1600]};
+  }  
+ endclass
+
+    module tb();
+      payload p1;
+      initial begin
+        p1 = new();
+        p1.randomize();
+        $display("size is %d",p1.payload.size());
+      end
+    endmodule   
+
+//
+class obj;
+  rand int num;
+endclass
+
+class q_cls;
+  rand obj obj_q[$];
+  rand int length;
+  
+  
+  function void pre_randomize();
+    length = $urandom_range(0,10);
+    obj_q = {};
+    repeat(length) begin
+    	obj obj_dummy;
+        obj_dummy = new();
+        obj_q.push_back(obj_dummy);
+    end 
+  endfunction 
+endclass  
+  
+  module main();
+     q_cls arr_cls;
+    
+    initial begin
+      arr_cls = new();
+    end
+  endmodule  
+      
+
+    
