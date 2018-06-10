@@ -1,1 +1,64 @@
+//Program toi generate  9 unique values and 1 non unique values
+//Trick is to use one rand variable to randomize non unique index and one more index which needs to be duplicated
 
+class ex;
+  rand int a[10];
+  rand int index;
+  rand int index_to_copy;
+  
+  constraint c_index {
+  	index >=0;
+    index <=9;
+    index_to_copy >=0;
+    index_to_copy <=9;
+    index_to_copy != index;
+    solve index_to_copy before a;
+    solve index before a;
+  }
+  
+  constraint c_val_constraint {
+    foreach(a[i]){
+      a[i] >=1;
+      a[i] <=10;
+    }
+  }
+  
+  constraint c_unique_constraint {
+    foreach(a[i]){
+      foreach(a[j]){
+        if(i!=index){
+          if(j!=index){
+            if(i!=j)   {
+              a[i] != a[j];
+            }
+          }
+        }
+        else if(i == index) {
+          if(j == index_to_copy){
+            a[i] == a[j];
+          }
+        }
+      }
+    }
+  }
+  
+  function void print_a();
+    $display("index = %d",index);
+    $display("index_to_copy = %d", index_to_copy);
+    for (int i=0; i<10; i++) begin
+      $display("a[%d] = %d",i,a[i]);
+    end
+  endfunction:print_a
+endclass
+
+module tb();
+  ex e1; 
+  
+  initial begin
+    e1 = new();
+    repeat(3) begin
+    	e1.randomize();
+   	 	e1.print_a();
+    end
+  end
+endmodule:tb
