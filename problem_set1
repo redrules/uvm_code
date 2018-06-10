@@ -1,0 +1,47 @@
+//Code of testbench code to count the transitions
+
+class count_transitions;
+  static int val0;
+  static int val1;
+  static int previous_val;
+  static int c0_1;
+  static int c1_0;
+  
+  function new();
+    this.val0 =	0;
+    this.val1 =	1;
+    this.previous_val =0;
+  endfunction:new
+  
+  task ctr(input bit stream);
+    if(!previous_val) begin
+      if(stream ==val1) begin
+        	this.c0_1++;
+      		this.previous_val = stream;
+      end
+    end
+    else if(previous_val) begin
+      if(stream ==val0) begin
+          	this.c1_0++;
+        	this.previous_val = stream;
+      	end
+    end
+  endtask:ctr
+  
+endclass:count_transitions
+
+module tb;
+  count_transitions c0;
+  
+  initial begin
+    c0 =new();
+    
+    c0.ctr(0);
+    c0.ctr(1);
+    c0.ctr(0);
+    c0.ctr(1);
+    
+    $display("c0.c0_1 = %d", c0.c0_1);
+    $display("c0.c1_0 = %d", c0.c1_0);
+  end
+endmodule:tb
