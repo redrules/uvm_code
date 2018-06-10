@@ -1,0 +1,80 @@
+ //Write a example to code a array in such a way the row doesnt have 3 consecutive 1s or 3 consecutive 0s
+class help_class;
+  rand bit value;
+endclass:help_class
+
+class c_class;
+  rand int a[9][9];
+
+  int row_value0;
+  int row_value1;
+  int col_value0;
+  int col_value1;
+  help_class h0;
+  int count;
+  
+  int col_count;
+  int temp;
+  
+  function new();
+    h0 = new();
+    count = 0;
+    col_count = 0;
+  endfunction:new
+  
+  function void post_randomize();
+    foreach(a[i]) begin
+      foreach(a[,j]) begin
+        
+        if(count <2) begin
+          h0.randomize();
+          a[i][j] = h0.value;
+          if(count ==0) begin
+          	value0 = h0.value;
+          end
+          else if(count ==1) begin
+          	value1 = h0.value;
+          end
+        end
+        
+        else if( count >1) begin
+          if(value0 == value1) begin
+            h0.randomize() with {h0.value != value0;};
+          end
+          else begin
+            h0.randomize();
+          end
+          a[i][j] = h0.value;
+          temp = value1;
+          value1 = h0.value;
+          value0 = temp;
+        end
+        count = count +1;
+        if(count >9) begin
+        	count =0;
+        end
+      end
+      col_count = col_count +1;
+    end
+  endfunction:post_randomize
+  
+  function void print_a();
+    for(int i=0; i<1; i++) begin
+      for(int j=0; j<9; j++) begin
+        $display("element a[%d][%d]= \t\t%d", i,j,a[i][j]);
+      end
+      $display(); 
+    end
+  endfunction:print_a
+endclass:c_class
+
+module tb;
+  c_class c0;
+  
+  initial begin
+    c0 = new();
+    c0.randomize();
+    c0.print_a();
+  end
+endmodule:tb
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
